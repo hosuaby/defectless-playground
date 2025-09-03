@@ -4,7 +4,7 @@ import copy from 'rollup-plugin-copy';
 
 const config: rollup.RollupOptions[] = [
   {
-    input: 'src/index.ts',
+    input: [ 'src/index.ts', 'src/program-example.ts' ],
     output: [
       {
         dir: 'dist',
