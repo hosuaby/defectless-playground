@@ -1,4 +1,4 @@
-import {failure, Outcome, Program, program, success} from 'defectless';
+import {failure, Outcome, Program, program, success, SyncOutcome, SyncProgram} from 'defectless';
 
 class CacheError extends Error {
   constructor(message: string, cause?: unknown) {
@@ -47,8 +47,33 @@ function loadDocument(id: number): Outcome<Document, CacheError | DbError> {
   );
 }
 
+class MathError extends Error {
+  constructor(message: string) {
+    super(message);
+  }
+}
+
+function safeDivision(dividend: number, divisor: number): SyncOutcome<number, MathError> {
+  return program(
+    function* (): SyncProgram<number, MathError> {
+      if (divisor === 0) {
+        yield failure(new MathError('Cannot divide by zero'));
+      }
+
+      const result: number = dividend / divisor;
+      return success(result);
+    }
+  );
+}
+
 await loadDocument(42).match(
   doc => console.dir(doc),
   err => console.error(err),
   defect => console.error(defect),
 );
+
+safeDivision(10, 2).matchSync(
+  res => console.log(res),
+  err => console.error(err),
+  defect => console.error(defect),
+)
